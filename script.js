@@ -1,3 +1,14 @@
+//Additional challenges:
+//1. Ability to edit a workout
+//2. Ability to delete a workout
+//3. Ability to delete all workouts
+//4. Ability to sort workouts by a certain field
+//5. Re-build running and cycling objects coming from local storage
+//6. More realistic error and confirmation messages
+//7. Ability to position the map to show all workouts
+//8. Close all popups
+//9. Show all popups
+//10. Display weather data for workout time and place
 "use strict";
 
 class Workout {
@@ -6,8 +17,6 @@ class Workout {
   clicks = 0;
 
   constructor(coords, distance, duration) {
-    // this.date = ...
-    // this.id = ...
     this.coords = coords; // [lat, lng]
     this.distance = distance; // in km
     this.duration = duration; // in min
@@ -75,6 +84,7 @@ const inputDistance = document.querySelector(".form__input--distance");
 const inputDuration = document.querySelector(".form__input--duration");
 const inputCadence = document.querySelector(".form__input--cadence");
 const inputElevation = document.querySelector(".form__input--elevation");
+const deleteBtn = document.querySelectorAll(".delete");
 
 class App {
   #map;
@@ -208,6 +218,15 @@ class App {
     this._setLocalStorage();
   }
 
+  // _deleteWorkout(e) {
+  //   let workout = e.target.closest(".workout");
+  //   let workoutId = workout.dataset.id;
+  //   this.#workouts = this.#workouts.filter((x) => x.id !== workoutId);
+  //   workout.remove();
+  //   this._setLocalStorage();
+  //   this._getLocalStorage();
+  // }
+
   _renderWorkoutMarker(workout) {
     L.marker(workout.coords)
       .addTo(this.#map)
@@ -229,7 +248,9 @@ class App {
   _renderWorkout(workout) {
     let html = `
       <li class="workout workout--${workout.type}" data-id="${workout.id}">
-        <h2 class="workout__title">${workout.description}</h2>
+        <h2 class="workout__title">${
+          workout.description
+        }</h2><span class="delete">x</span>
         <div class="workout__details">
           <span class="workout__icon">${
             workout.type === "running" ? "🏃‍♂️" : "🚴‍♀️"
@@ -280,6 +301,11 @@ class App {
   _moveToPopup(e) {
     // BUGFIX: When we click on a workout before the map has loaded, we get an error. But there is an easy fix:
     if (!this.#map) return;
+
+    if (e.target.classList.contains("delete")) {
+      this._deleteWorkout(e);
+      return;
+    }
 
     const workoutEl = e.target.closest(".workout");
 
